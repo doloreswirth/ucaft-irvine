@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UCI-AFT OC Organizing Hub</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f3;
+      color: #1a1a1a;
+    }
+
+    .hub-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #ffffff;
+      border-right: 1px solid #e5e5e0;
+      overflow-y: auto;
+      padding: 1.5rem 0;
+    }
+
+    .sidebar-section {
+      padding: 0 1rem 1.5rem;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #666;
+      margin: 0 0 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .project-item {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #1a1a1a;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s;
+    }
+
+    .project-item:hover {
+      background: #f0f0ed;
+    }
+
+    .project-item.active {
+      background: #e6f1fb;
+      color: #185fa5;
+      font-weight: 500;
+    }
+
+    .view-item {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #1a1a1a;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .view-item:hover {
+      background: #f0f0ed;
+    }
+
+    .view-item.active {
+      background: #f0f0ed;
+      font-weight: 500;
+    }
+
+    .add-btn {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d3d3ce;
+      border-radius: 6px;
+      background: transparent;
+      color: #1a1a1a;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .add-btn:hover {
+      background: #f0f0ed;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e5e5e0;
+      background: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      padding: 8px 16px;
+      background: #185fa5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      background: #0c447c;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .project-group {
+      background: white;
+      border: 1px solid #e5e5e0;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .project-group-header {
+      padding: 1rem 1.25rem;
+      background: #f9f9f7;
+      font-weight: 500;
+      font-size: 14px;
+      color: #1a1a1a;
+      border-bottom: 1px solid #e5e5e0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .project-group-header:hover {
+      background: #f5f5f3;
+    }
+
+    .project-group-content {
+      padding: 1rem 1.25rem;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: 200px 120px 100px 100px 80px auto;
+      gap: 12px;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f0ed;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .task-row:last-child {
+      border-bottom: none;
+    }
+
+    .task-name {
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .task-due {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .task-assignee {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .task-status {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      text-align: center;
+      width: fit-content;
+    }
+
+    .status-not-started {
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+
+    .status-in-progress {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-blocked {
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .status-done {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .task-delete {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 0;
+    }
+
+    .task-delete:hover {
+      color: #666;
+    }
+
+    .status-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .status-column {
+      background: white;
+      border: 1px solid #e5e5e0;
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .status-column-header {
+      font-weight: 500;
+      font-size: 13px;
+      color: #1a1a1a;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #e5e5e0;
+    }
+
+    .task-card {
+      background: #f9f9f7;
+      border: 1px solid #e5e5e0;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+    }
+
+    .task-card:hover {
+      border-color: #d3d3ce;
+      background: #f5f5f3;
+    }
+
+    .task-card-name {
+      font-weight: 500;
+      font-size: 13px;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .task-card-meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 2px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 2rem;
+      font-size: 13px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: #1a1a1a;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d3d3ce;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #185fa5;
+      box-shadow: 0 0 0 2px rgba(24, 95, 165, 0.1);
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #d3d3ce;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+
+    .btn:hover {
+      background: #f9f9f7;
+    }
+
+    .timeline-view {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .timeline-item {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #e5e5e0;
+      background: white;
+      margin-bottom: 0;
+    }
+
+    .timeline-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .timeline-item:last-child {
+      border-radius: 0 0 8px 8px;
+      border-bottom: none;
+    }
+
+    .timeline-date {
+      font-weight: 600;
+      font-size: 13px;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .timeline-task {
+      font-size: 13px;
+      color: #666;
+    }
+
+    @media (max-width: 900px) {
+      .task-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      
+      .sidebar {
+        width: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hub-container">
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Projects</div>
+        <div id="projects-list"></div>
+        <button class="add-btn" onclick="openAddProject()">+ New project</button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Views</div>
+        <button class="view-item active" onclick="switchView('project')">By project</button>
+        <button class="view-item" onclick="switchView('status')">By status</button>
+        <button class="view-item" onclick="switchView('assignee')">By assignee</button>
+        <button class="view-item" onclick="switchView('timeline')">Timeline</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="header">
+        <h1>UCI-AFT OC Organizing Hub</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openAddTask()">+ Add task</button>
+        </div>
+      </div>
+
+      <div class="content-area" id="content-area"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="project-modal">
+    <div class="modal-content">
+      <div class="modal-title">New project</div>
+      <div class="form-group">
+        <label class="form-label">Project name</label>
+        <input type="text" class="form-input" id="project-name-input" placeholder="e.g., Fall Organizing">
+      </div>
+      <div class="form-buttons">
+        <button class="btn" onclick="closeModal('project-modal')">Cancel</button>
+        <button class="btn-primary" onclick="createProject()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="task-modal">
+    <div class="modal-content">
+      <div class="modal-title">New task</div>
+      <div class="form-group">
+        <label class="form-label">Project</label>
+        <select class="form-input" id="task-project-select"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task name</label>
+        <input type="text" class="form-input" id="task-name-input" placeholder="What needs to be done?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="task-desc-input" placeholder="Details" style="height: 80px; resize: none;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assignee</label>
+        <input type="text" class="form-input" id="task-assignee-input" placeholder="Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due date</label>
+        <input type="date" class="form-input" id="task-due-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="task-status-input">
+          <option value="not-started">Not started</option>
+          <option value="in-progress">In progress</option>
+          <option value="blocked">Blocked</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button class="btn" onclick="closeModal('task-modal')">Cancel</button>
+        <button class="btn-primary" onclick="createTask()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let appState = {
+      projects: ['Fall Organizing', 'Bargaining Campaign', 'CAT Recruitment'],
+      tasks: [],
+      currentView: 'project',
+      selectedProject: 'Fall Organizing'
+    };
+
+    const loadData = () => {
+      try {
+        const saved = localStorage.getItem('oc_hub_data');
+        if (saved) {
+          appState = JSON.parse(saved);
+        }
+      } catch (e) {
+        console.log('Using default data');
+      }
+      render();
+    };
+
+    const saveData = () => {
+      try {
+        localStorage.setItem('oc_hub_data', JSON.stringify(appState));
+      } catch (e) {
+        console.log('Save error');
+      }
+    };
+
+    const openAddProject = () => {
+      document.getElementById('project-modal').classList.add('open');
+      document.getElementById('project-name-input').focus();
+    };
+
+    const closeModal = (modalId) => {
+      document.getElementById(modalId).classList.remove('open');
+    };
+
+    const createProject = () => {
+      const name = document.getElementById('project-name-input').value.trim();
+      if (name && !appState.projects.includes(name)) {
+        appState.projects.push(name);
+        appState.selectedProject = name;
+        document.getElementById('project-name-input').value = '';
+        closeModal('project-modal');
+        saveData();
+        render();
+      }
+    };
+
+    const openAddTask = () => {
+      const select = document.getElementById('task-project-select');
+      select.innerHTML = appState.projects.map(p => `<option value="${p}">${p}</option>`).join('');
+      if (appState.selectedProject) {
+        select.value = appState.selectedProject;
+      }
+      document.getElementById('task-modal').classList.add('open');
+      document.getElementById('task-name-input').focus();
+    };
+
+    const createTask = () => {
+      const task = {
+        id: Date.now(),
+        project: document.getElementById('task-project-select').value,
+        name: document.getElementById('task-name-input').value.trim(),
+        description: document.getElementById('task-desc-input').value.trim(),
+        assignee: document.getElementById('task-assignee-input').value.trim(),
+        dueDate: document.getElementById('task-due-input').value,
+        status: document.getElementById('task-status-input').value
+      };
+
+      if (task.name && task.project) {
+        appState.tasks.push(task);
+        document.getElementById('task-name-input').value = '';
+        document.getElementById('task-desc-input').value = '';
+        document.getElementById('task-assignee-input').value = '';
+        document.getElementById('task-due-input').value = '';
+        closeModal('task-modal');
+        saveData();
+        render();
+      }
+    };
+
+    const switchView = (view) => {
+      appState.currentView = view;
+      document.querySelectorAll('.view-item').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      render();
+    };
+
+    const deleteTask = (id) => {
+      if (confirm('Delete this task?')) {
+        appState.tasks = appState.tasks.filter(t => t.id !== id);
+        saveData();
+        render();
+      }
+    };
+
+    const renderProjectView = () => {
+      let html = '';
+      appState.projects.forEach(proj => {
+        const tasks = appState.tasks.filter(t => t.project === proj);
+        html += `
+          <div class="project-group">
+            <div class="project-group-header">${proj} (${tasks.length} tasks)</div>
+            <div class="project-group-content">
+              ${tasks.length === 0 ? '<div class="empty-state">No tasks yet</div>' : ''}
+              ${tasks.map(t => `
+                <div class="task-row">
+                  <div class="task-name">${t.name}</div>
+                  <div class="task-due">${t.dueDate || '—'}</div>
+                  <div class="task-assignee">${t.assignee || 'Unassigned'}</div>
+                  <div class="task-status status-${t.status}">${t.status}</div>
+                  <div>${t.description ? '📝' : ''}</div>
+                  <button class="task-delete" onclick="deleteTask(${t.id})">×</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+      return html;
+    };
+
+    const renderStatusView = () => {
+      const statuses = ['not-started', 'in-progress', 'blocked', 'done'];
+      const labels = { 'not-started': 'Not started', 'in-progress': 'In progress', 'blocked': 'Blocked', 'done': 'Done' };
+      return `<div class="status-board">${statuses.map(status => {
+        const tasks = appState.tasks.filter(t => t.status === status);
+        return `
+          <div class="status-column">
+            <div class="status-column-header">${labels[status]} (${tasks.length})</div>
+            ${tasks.map(t => `
+              <div class="task-card">
+                <div class="task-card-name">${t.name}</div>
+                <div class="task-card-meta">${t.project}</div>
+                <div class="task-card-meta">${t.assignee || 'Unassigned'}</div>
+                <div class="task-card-meta">${t.dueDate || 'No due date'}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }).join('')}</div>`;
+    };
+
+    const renderAssigneeView = () => {
+      const assignees = [...new Set(appState.tasks.map(t => t.assignee || 'Unassigned'))].sort();
+      let html = '';
+      assignees.forEach(assignee => {
+        const tasks = appState.tasks.filter(t => (t.assignee || 'Unassigned') === assignee);
+        const done = tasks.filter(t => t.status === 'done').length;
+        html += `
+          <div class="project-group">
+            <div class="project-group-header">${assignee} (${done}/${tasks.length} done)</div>
+            <div class="project-group-content">
+              ${tasks.map(t => `
+                <div class="task-row">
+                  <div class="task-name">${t.name}</div>
+                  <div class="task-due">${t.dueDate || '—'}</div>
+                  <div class="task-assignee">${t.project}</div>
+                  <div class="task-status status-${t.status}">${t.status}</div>
+                  <div></div>
+                  <button class="task-delete" onclick="deleteTask(${t.id})">×</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+      return html;
+    };
+
+    const renderTimelineView = () => {
+      const sorted = [...appState.tasks].sort((a, b) => (a.dueDate || '9999') > (b.dueDate || '9999') ? 1 : -1);
+      if (sorted.length === 0) {
+        return '<div class="empty-state">No tasks scheduled</div>';
+      }
+      return sorted.map(t => `
+        <div class="timeline-item">
+          <div class="timeline-date">${t.dueDate || 'No date'}</div>
+          <div class="timeline-task">${t.name} — ${t.assignee || 'Unassigned'} (${t.project})</div>
+        </div>
+      `).join('');
+    };
+
+    const render = () => {
+      document.getElementById('projects-list').innerHTML = appState.projects.map(p => `
+        <button class="project-item ${appState.selectedProject === p ? 'active' : ''}" onclick="appState.selectedProject='${p}'; render()">${p}</button>
+      `).join('');
+
+      let content = '';
+      if (appState.currentView === 'project') {
+        content = renderProjectView();
+      } else if (appState.currentView === 'status') {
+        content = renderStatusView();
+      } else if (appState.currentView === 'assignee') {
+        content = renderAssigneeView();
+      } else if (appState.currentView === 'timeline') {
+        content = renderTimelineView();
+      }
+
+      document.getElementById('content-area').innerHTML = content;
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal('project-modal');
+        closeModal('task-modal');
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
