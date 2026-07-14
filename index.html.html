@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UC-AFT Irvine Organizing Committee</title>
+  <style>
+    :root {
+      --navy: #17324d;
+      --blue: #426b8f;
+      --gold: #d6a33a;
+      --paper: #f6f7f8;
+      --white: #ffffff;
+      --ink: #243341;
+      --muted: #73808c;
+      --line: #e3e7ea;
+      --soft: #eef2f5;
+      --green: #4d7f69;
+      --red: #a45752;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: var(--paper); color: var(--ink); font-size: 14px; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .shell { display: grid; grid-template-columns: 1fr; grid-template-rows: auto 1fr; min-height: 100vh; }
+    
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 26px; background: var(--navy); border-bottom: 1px solid rgba(255,255,255,0.08); height: 62px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: white; flex-shrink: 0; }
+    .brand-mark { width: auto; min-width: 40px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: var(--gold); color: var(--navy); font-weight: 900; padding: 0 8px; font-size: 0.75rem; }
+    .nav { display: flex; gap: 2px; flex: 1; margin: 0; }
+    .nav a { padding: 8px 14px; border-radius: 6px; color: rgba(255,255,255,0.72); font-weight: 700; font-size: 0.9rem; }
+    .nav a:hover, .nav a.active { background: rgba(255,255,255,0.12); color: white; }
+    .top-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .main { min-width: 0; }
+    .content { padding: 22px 26px 36px; }
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+    .summary-card { padding: 15px 16px; background: white; border: 1px solid var(--line); border-radius: 10px; }
+    .summary-card strong { display: block; margin-bottom: 2px; color: var(--navy); font-size: 1.55rem; }
+    .summary-card span { color: var(--muted); font-size: 0.82rem; font-weight: 700; }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(260px, 0.75fr); gap: 16px; align-items: start; }
+    .panel { background: white; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(23, 50, 77, 0.06); overflow: hidden; margin-bottom: 16px; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+    .panel-header h2 { margin: 0; color: var(--navy); font-size: 1rem; }
+    .panel-header p { margin: 3px 0 0; color: var(--muted); font-size: 0.78rem; }
+    .panel-body { padding: 14px 16px; }
+
+    .button { min-height: 36px; padding: 0 13px; border: 0; border-radius: 8px; font-weight: 800; cursor: pointer; }
+    .button.primary { background: var(--navy); color: white; }
+    .button.secondary { background: var(--soft); color: var(--navy); }
+
+    .task-toolbar { display: grid; grid-template-columns: 1fr 150px 170px; gap: 8px; margin-bottom: 10px; }
+    .task-toolbar input, .task-toolbar select { width: 100%; height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; background: white; color: var(--ink); }
+
+    .table-wrap { overflow-x: auto; }
+    .task-table { width: 100%; border-collapse: collapse; }
+    .task-table th { padding: 8px; text-align: left; color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); }
+    .task-table td { padding: 9px 8px; border-bottom: 1px solid #edf0f2; vertical-align: middle; }
+    .task-table tbody tr:hover { background: #fafbfc; }
+
+    .task-title { color: var(--navy); font-weight: 600; line-height: 1.2; }
+    .task-note { margin-top: 2px; color: var(--muted); font-size: 0.74rem; }
+    .campaign-label { color: var(--blue); font-size: 0.78rem; font-weight: 700; }
+    .priority { font-size: 0.76rem; font-weight: 800; }
+    .priority.high { color: var(--red); }
+    .priority.medium { color: #b77a34; }
+    .status-select { width: 100%; height: 30px; padding: 0 7px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); color: var(--ink); font-size: 0.76rem; font-weight: 700; }
+    .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+    .row-actions button { border: 0; background: transparent; color: var(--blue); font-size: 0.76rem; font-weight: 800; padding: 2px 3px; cursor: pointer; }
+
+    .campaign { padding: 14px 0; border-bottom: 1px solid #edf0f2; }
+    .campaign:last-child { border-bottom: 0; }
+    .campaign-grid { display: grid; grid-template-columns: 120px 1fr 180px; gap: 12px; align-items: start; }
+    .campaign-lead { }
+    .campaign-lead-name { color: var(--navy); font-weight: 700; font-size: 0.8rem; display: block; margin-bottom: 2px; }
+    .campaign-lead-label { color: var(--muted); font-size: 0.7rem; }
+    .campaign-progress { }
+    .campaign-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .campaign-top strong { color: var(--navy); font-size: 0.85rem; }
+    .campaign-top span { color: var(--muted); font-size: 0.74rem; }
+    .progress { height: 3px; overflow: hidden; border-radius: 999px; background: var(--soft); margin-bottom: 6px; }
+    .progress div { height: 100%; border-radius: inherit; background: var(--blue); }
+    .campaign-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 0.74rem; }
+    .campaign-doc { }
+    .campaign-doc-label { font-size: 0.74rem; color: var(--muted); margin-bottom: 6px; font-weight: 700; }
+    .campaign-doc-link { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-decoration: none; display: block; margin-bottom: 6px; word-break: break-word; }
+    .campaign-doc-link:hover { text-decoration: underline; }
+    .no-doc { color: var(--muted); font-size: 0.74rem; display: block; margin-bottom: 6px; }
+
+    .announcement { padding: 10px 0; border-bottom: 1px solid #edf0f2; }
+    .announcement:last-child { border-bottom: 0; }
+    .announcement strong { display: block; color: var(--navy); font-size: 0.8rem; margin-bottom: 3px; }
+    .announcement p { margin: 0; color: var(--muted); font-size: 0.74rem; line-height: 1.4; }
+
+    .calendar-month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .calendar-month-nav button { background: var(--soft); color: var(--navy); border: 0; padding: 6px 10px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+    .calendar-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--line); margin-bottom: 1px; }
+    .calendar-day-header { background: var(--soft); padding: 10px 8px; text-align: center; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--line); }
+    .calendar-cell { background: white; min-height: 100px; padding: 8px; font-size: 0.75rem; }
+    .calendar-cell.other-month { background: #fafbfc; color: var(--muted); }
+    .calendar-date { display: block; color: var(--navy); font-weight: 700; margin-bottom: 6px; }
+    .event-badge { display: inline-block; padding: 3px 6px; border-radius: 4px; margin-bottom: 3px; font-size: 0.65rem; font-weight: 700; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; line-height: 1.2; }
+    .event-badge.meeting { background: #cbe3f0; color: var(--blue); }
+    .event-badge.deadline { background: #f0d0cc; color: var(--red); }
+    .event-badge.action-window { background: #d4e8de; color: var(--green); }
+
+    .modal { position: fixed; inset: 0; display: none; place-items: center; z-index: 100; padding: 20px; background: rgba(13, 27, 40, 0.5); }
+    .modal.open { display: grid; }
+    .modal-card { width: min(560px, 100%); max-height: 92vh; overflow-y: auto; background: white; border-radius: 14px; box-shadow: 0 24px 70px rgba(0,0,0,0.22); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin: 0; color: var(--navy); font-size: 1rem; }
+    .close { border: 0; background: transparent; color: var(--muted); font-size: 1.35rem; cursor: pointer; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 18px; }
+    .field { display: grid; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: var(--navy); font-size: 0.74rem; font-weight: 800; }
+    .field input, .field select, .field textarea { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 7px; background: white; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 18px 18px; }
+    .empty { padding: 24px; text-align: center; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#">
+        <span class="brand-mark">UC-AFT Irvine</span>
+        <span style="color: white; font-weight: 800;">UC-AFT Irvine Organizing Committee</span>
+      </a>
+      <nav class="nav">
+        <a class="active" href="#overview">Overview</a>
+        <a href="#tasks">Tasks</a>
+        <a href="#campaigns">Campaigns</a>
+      </nav>
+      <div class="top-actions">
+        <button class="button secondary" onclick="exportTasks()">Export</button>
+        <button class="button primary" onclick="openTaskModal()">Add task</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="content">
+        <section class="summary">
+          <article class="summary-card">
+            <strong id="openCount">0</strong>
+            <span>Open tasks</span>
+          </article>
+          <article class="summary-card">
+            <strong id="dueCount">0</strong>
+            <span>Due this week</span>
+          </article>
+          <article class="summary-card">
+            <strong>41</strong>
+            <span>Active organizers</span>
+          </article>
+          <article class="summary-card">
+            <strong>73%</strong>
+            <span>Quarterly outreach</span>
+          </article>
+        </section>
+
+        <div class="workspace">
+          <div>
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Task tracker</h2>
+                  <p>Assignments, deadlines, and current work</p>
+                </div>
+                <button class="button secondary" onclick="openTaskModal()">New task</button>
+              </div>
+              <div class="panel-body">
+                <div class="task-toolbar">
+                  <input id="searchInput" type="search" placeholder="Search tasks" oninput="renderTasks()" />
+                  <select id="statusFilter" onchange="renderTasks()">
+                    <option value="">All statuses</option>
+                    <option>To Do</option>
+                    <option>In Progress</option>
+                    <option>Blocked</option>
+                    <option>Done</option>
+                  </select>
+                  <select id="campaignFilter" onchange="renderTasks()">
+                    <option value="">All campaigns</option>
+                    <option>Job Security</option>
+                    <option>Membership Growth</option>
+                    <option>Fair Workload</option>
+                    <option>Communications</option>
+                  </select>
+                </div>
+                <div class="table-wrap">
+                  <table class="task-table">
+                    <thead>
+                      <tr>
+                        <th>Task</th>
+                        <th>Owner</th>
+                        <th>Campaign</th>
+                        <th>Due</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="taskBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Campaigns & Programs</h2>
+                  <p>Progress, leads, and planning documents</p>
+                </div>
+              </div>
+              <div class="panel-body" id="campaignBody"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Organizing Calendar</h2>
+                  <p>Key events and deadlines</p>
+                </div>
+                <a id="calendarPlanningLink" href="#" target="_blank" class="button primary" style="font-size: 0.8rem;">Planning Sheet</a>
+              </div>
+              <div class="panel-body">
+                <div class="calendar-month-nav">
+                  <button onclick="previousMonth()">← Prev</button>
+                  <h3 id="monthYear" style="margin: 0; color: var(--navy);"></h3>
+                  <button onclick="nextMonth()">Next →</button>
+                </div>
+                <div class="calendar-header">
+                  <div class="calendar-day-header">Sun</div>
+                  <div class="calendar-day-header">Mon</div>
+                  <div class="calendar-day-header">Tue</div>
+                  <div class="calendar-day-header">Wed</div>
+                  <div class="calendar-day-header">Thu</div>
+                  <div class="calendar-day-header">Fri</div>
+                  <div class="calendar-day-header">Sat</div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+              </div>
+            </section>
+          </div>
+
+          <aside>
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Announcements</h2>
+                  <p>Current team information</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <article class="announcement">
+                  <strong>Bargaining observer turnout</strong>
+                  <p>Each organizer should confirm two members by Thursday.</p>
+                </article>
+                <article class="announcement">
+                  <strong>Conversation guide updated</strong>
+                  <p>New job security talking points are in the shared folder.</p>
+                </article>
+                <article class="announcement">
+                  <strong>Contact list review</strong>
+                  <p>Check department lists before the next team meeting.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Upcoming</h2>
+                  <p>Meetings and deadlines</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <article class="announcement">
+                  <strong>Aug 14</strong>
+                  <p>Organizing Team Meeting · 5:30 PM</p>
+                </article>
+                <article class="announcement">
+                  <strong>Aug 18</strong>
+                  <p>Outreach deadline · 6:00 PM</p>
+                </article>
+                <article class="announcement">
+                  <strong>Aug 21</strong>
+                  <p>Organizer training · 12:00 PM</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Team leads</h2>
+                  <p>Primary contacts</p>
+                </div>
+              </div>
+              <div class="panel-body" id="teamBody"></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="taskModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="modalTitle">Add task</h2>
+        <button class="close" onclick="closeTaskModal()">×</button>
+      </div>
+      <form id="taskForm" onsubmit="saveTask(event)">
+        <div class="form-grid">
+          <input type="hidden" id="taskId" />
+          <div class="field full">
+            <label for="taskTitle">Task</label>
+            <input id="taskTitle" required placeholder="Example: Confirm bargaining observers" />
+          </div>
+          <div class="field">
+            <label for="taskOwner">Owner</label>
+            <input id="taskOwner" required placeholder="Organizer name" />
+          </div>
+          <div class="field">
+            <label for="taskCampaign">Campaign</label>
+            <select id="taskCampaign" required>
+              <option>Job Security</option>
+              <option>Membership Growth</option>
+              <option>Fair Workload</option>
+              <option>Communications</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="taskDue">Due date</label>
+            <input id="taskDue" type="date" required />
+          </div>
+          <div class="field">
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" required>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="taskStatus">Status</label>
+            <select id="taskStatus" required>
+              <option>To Do</option>
+              <option>In Progress</option>
+              <option>Blocked</option>
+              <option>Done</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="taskNotes">Notes</label>
+            <textarea id="taskNotes" placeholder="Additional details..."></textarea>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="button secondary" onclick="closeTaskModal()">Cancel</button>
+          <button type="submit" class="button primary">Save task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="docModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>Add document to <span id="docCampaignName"></span></h2>
+        <button class="close" onclick="closeDocModal()">×</button>
+      </div>
+      <form id="docForm" onsubmit="saveDoc(event)">
+        <div class="form-grid">
+          <input type="hidden" id="docCampaignInput" />
+          <div class="field full">
+            <label for="docUrl">Google Doc URL</label>
+            <input id="docUrl" required placeholder="https://docs.google.com/document/d/..." />
+          </div>
+          <div class="field full">
+            <label for="docTitle">Document Title (optional)</label>
+            <input id="docTitle" placeholder="Planning doc, Strategy notes, etc." />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="button secondary" onclick="closeDocModal()">Cancel</button>
+          <button type="submit" class="button primary">Save document</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const defaultTasks = [
+      { id: "1", title: "Confirm bargaining observers", owner: "Honora", campaign: "Job Security", due: "2026-08-13", priority: "High", status: "In Progress", notes: "Confirm two members from each priority department." },
+      { id: "2", title: "Complete outreach list for Education", owner: "Lola", campaign: "Membership Growth", due: "2026-08-15", priority: "High", status: "To Do", notes: "Review missing personal emails and last contact date." },
+      { id: "3", title: "Review workload survey responses", owner: "Marcus", campaign: "Fair Workload", due: "2026-08-19", priority: "Medium", status: "Blocked", notes: "Waiting for final department submissions." },
+      { id: "4", title: "Draft organizer meeting agenda", owner: "Janelle", campaign: "Communications", due: "2026-08-12", priority: "Medium", status: "Done", notes: "Agenda shared with team leads." },
+      { id: "5", title: "Reach out to Science dept", owner: "Lola", campaign: "Membership Growth", due: "2026-08-16", priority: "High", status: "Done", notes: "" },
+      { id: "6", title: "Collect workload data from Humanities", owner: "Marcus", campaign: "Fair Workload", due: "2026-08-20", priority: "Medium", status: "Done", notes: "" }
+    ];
+
+    let tasks = [...defaultTasks];
+
+    const sheetsLeads = [
+      { campaign: "Job Security", lead: "Honora" },
+      { campaign: "Membership Growth", lead: "Lola" },
+      { campaign: "Fair Workload", lead: "Marcus" },
+      { campaign: "Communications", lead: "Janelle" }
+    ];
+
+    const sheetEvents = [
+      { date: "2026-08-14", eventName: "Team organizing meeting", type: "Meeting", planningSheet: "https://docs.google.com/document/d/example1" },
+      { date: "2026-08-18", eventName: "Outreach deadline", type: "Deadline", planningSheet: "https://docs.google.com/document/d/example2" },
+      { date: "2026-09-01", eventName: "September action window opens", type: "Action Window", planningSheet: "https://docs.google.com/document/d/example3" },
+      { date: "2026-09-10", eventName: "Bargaining day observers due", type: "Deadline", planningSheet: "https://docs.google.com/document/d/example4" }
+    ];
+
+    const campaignDocs = {
+      "Job Security": { url: "", title: "" },
+      "Membership Growth": { url: "", title: "" },
+      "Fair Workload": { url: "", title: "" },
+      "Communications": { url: "", title: "" }
+    };
+
+    function calculateCampaignStats(campaign) {
+      const campaignTasks = tasks.filter(t => t.campaign === campaign);
+      const done = campaignTasks.filter(t => t.status === "Done").length;
+      const total = campaignTasks.length;
+      const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+      return { done, total, percent };
+    }
+
+    function renderCampaigns() {
+      const body = document.getElementById("campaignBody");
+      const campaigns = ["Job Security", "Membership Growth", "Fair Workload", "Communications"];
+      
+      body.innerHTML = campaigns.map(camp => {
+        const stats = calculateCampaignStats(camp);
+        const lead = sheetsLeads.find(l => l.campaign === camp)?.lead || "TBD";
+        const doc = campaignDocs[camp];
+        const hasDoc = doc.url && doc.url.trim();
+        
+        return `
+          <div class="campaign">
+            <div class="campaign-grid">
+              <div class="campaign-lead">
+                <span class="campaign-lead-name">${camp}</span>
+                <span class="campaign-lead-label">Lead: ${lead}</span>
+              </div>
+              <div class="campaign-progress">
+                <div class="campaign-top" style="justify-content: space-between; gap: 6px; margin-bottom: 6px;">
+                  <span style="font-size: 0.74rem; color: var(--muted);">${stats.done}/${stats.total} done</span>
+                  <span style="font-size: 0.85rem; color: var(--navy); font-weight: 700;">${stats.percent}%</span>
+                </div>
+                <div class="progress"><div style="width:${stats.percent}%"></div></div>
+              </div>
+              <div class="campaign-doc">
+                <div class="campaign-doc-label">Work Doc</div>
+                ${hasDoc ? `<a href="${doc.url}" target="_blank" class="campaign-doc-link">${doc.title || 'View'}</a>` : `<span class="no-doc">—</span>`}
+                <button class="button secondary" style="padding: 0 8px; min-height: 26px; font-size: 0.7rem; width: 100%;" onclick="openDocModal('${camp}')">
+                  ${hasDoc ? 'Edit' : 'Add'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTasks() {
+      const body = document.getElementById("taskBody");
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const status = document.getElementById("statusFilter").value;
+      const campaign = document.getElementById("campaignFilter").value;
+
+      const filtered = tasks.filter(t => {
+        const match = t.title.toLowerCase().includes(search) || t.owner.toLowerCase().includes(search);
+        return match && (!status || t.status === status) && (!campaign || t.campaign === campaign);
+      });
+
+      if (filtered.length === 0) {
+        body.innerHTML = `<tr><td colspan="7"><div class="empty">No tasks found</div></td></tr>`;
+      } else {
+        body.innerHTML = filtered.map(t => `
+          <tr>
+            <td><div class="task-title">${t.title}</div><div class="task-note">${t.notes || 'No notes'}</div></td>
+            <td>${t.owner}</td>
+            <td><span class="campaign-label">${t.campaign}</span></td>
+            <td>${new Date(t.due).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</td>
+            <td><span class="priority ${t.priority.toLowerCase()}">${t.priority}</span></td>
+            <td><select class="status-select" onchange="updateTask('${t.id}', 'status', this.value)">
+              <option ${t.status === 'To Do' ? 'selected' : ''}>To Do</option>
+              <option ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option ${t.status === 'Blocked' ? 'selected' : ''}>Blocked</option>
+              <option ${t.status === 'Done' ? 'selected' : ''}>Done</option>
+            </select></td>
+            <td><div class="row-actions">
+              <button onclick="editTask('${t.id}')">Edit</button>
+              <button onclick="deleteTask('${t.id}')">Delete</button>
+            </div></td>
+          </tr>
+        `).join("");
+      }
+      updateMetrics();
+      renderCampaigns();
+    }
+
+    function updateTask(id, field, value) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task[field] = value;
+        renderTasks();
+      }
+    }
+
+    function updateMetrics() {
+      document.getElementById("openCount").textContent = tasks.filter(t => t.status !== "Done").length;
+      const now = new Date();
+      const week = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      document.getElementById("dueCount").textContent = tasks.filter(t => {
+        if (t.status === "Done") return false;
+        const d = new Date(t.due);
+        return d >= now && d <= week;
+      }).length;
+    }
+
+    function openTaskModal() {
+      document.getElementById("taskForm").reset();
+      document.getElementById("taskId").value = "";
+      document.getElementById("modalTitle").textContent = "Add task";
+      document.getElementById("taskModal").classList.add("open");
+    }
+
+    function closeTaskModal() {
+      document.getElementById("taskModal").classList.remove("open");
+    }
+
+    function saveTask(e) {
+      e.preventDefault();
+      const id = document.getElementById("taskId").value || Date.now().toString();
+      const task = {
+        id, title: document.getElementById("taskTitle").value,
+        owner: document.getElementById("taskOwner").value,
+        campaign: document.getElementById("taskCampaign").value,
+        due: document.getElementById("taskDue").value,
+        priority: document.getElementById("taskPriority").value,
+        status: document.getElementById("taskStatus").value,
+        notes: document.getElementById("taskNotes").value
+      };
+      const idx = tasks.findIndex(t => t.id === id);
+      if (idx >= 0) tasks[idx] = task;
+      else tasks.unshift(task);
+      renderTasks();
+      closeTaskModal();
+    }
+
+    function editTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+      document.getElementById("taskId").value = task.id;
+      document.getElementById("taskTitle").value = task.title;
+      document.getElementById("taskOwner").value = task.owner;
+      document.getElementById("taskCampaign").value = task.campaign;
+      document.getElementById("taskDue").value = task.due;
+      document.getElementById("taskPriority").value = task.priority;
+      document.getElementById("taskStatus").value = task.status;
+      document.getElementById("taskNotes").value = task.notes;
+      document.getElementById("modalTitle").textContent = "Edit task";
+      document.getElementById("taskModal").classList.add("open");
+    }
+
+    function deleteTask(id) {
+      if (confirm("Delete this task?")) {
+        tasks = tasks.filter(t => t.id !== id);
+        renderTasks();
+      }
+    }
+
+    function exportTasks() {
+      const csv = [["Task", "Owner", "Campaign", "Due", "Priority", "Status", "Notes"],
+        ...tasks.map(t => [t.title, t.owner, t.campaign, t.due, t.priority, t.status, t.notes])
+      ].map(r => r.map(v => `"${String(v).replaceAll('"', '""')}"`).join(",")).join("\n");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv"}));
+      a.download = "tasks.csv";
+      a.click();
+    }
+
+    function openDocModal(camp) {
+      document.getElementById("docCampaignName").textContent = camp;
+      document.getElementById("docCampaignInput").value = camp;
+      const doc = campaignDocs[camp];
+      document.getElementById("docUrl").value = doc.url || "";
+      document.getElementById("docTitle").value = doc.title || "";
+      document.getElementById("docModal").classList.add("open");
+    }
+
+    function closeDocModal() {
+      document.getElementById("docModal").classList.remove("open");
+    }
+
+    function saveDoc(e) {
+      e.preventDefault();
+      const camp = document.getElementById("docCampaignInput").value;
+      const url = document.getElementById("docUrl").value.trim();
+      const title = document.getElementById("docTitle").value.trim();
+      if (!url) { alert("Enter a URL"); return; }
+      campaignDocs[camp] = { url, title };
+      renderCampaigns();
+      closeDocModal();
+    }
+
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+
+    function renderCalendar() {
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById("monthYear").textContent = `${monthNames[currentMonth]} ${currentYear}`;
+      
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const grid = document.getElementById("calendarGrid");
+      let html = "";
+
+      const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+      for (let i = firstDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-cell other-month"><span class="calendar-date">${prevMonthDays - i}</span></div>`;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const events = sheetEvents.filter(e => e.date === dateStr);
+        let badges = events.map(e => `<div class="event-badge ${e.type.toLowerCase().replace(/\s+/g,'-')}" onclick="window.open('${e.planningSheet}')" title="${e.eventName}">${e.eventName}</div>`).join("");
+        html += `<div class="calendar-cell"><span class="calendar-date">${day}</span>${badges}</div>`;
+      }
+
+      const remaining = 42 - (firstDay + daysInMonth);
+      for (let day = 1; day <= remaining; day++) {
+        html += `<div class="calendar-cell other-month"><span class="calendar-date">${day}</span></div>`;
+      }
+
+      grid.innerHTML = html;
+      const link = document.getElementById("calendarPlanningLink");
+      const planningLink = sheetEvents.find(e => e.planningSheet);
+      if (planningLink) link.href = planningLink.planningSheet;
+    }
+
+    function previousMonth() {
+      currentMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      if (currentMonth === 11) currentYear--;
+      renderCalendar();
+    }
+
+    function nextMonth() {
+      currentMonth = (currentMonth + 1) % 12;
+      if (currentMonth === 0) currentYear++;
+      renderCalendar();
+    }
+
+    document.getElementById("taskModal").addEventListener("click", e => { if (e.target.id === "taskModal") closeTaskModal(); });
+    document.getElementById("docModal").addEventListener("click", e => { if (e.target.id === "docModal") closeDocModal(); });
+
+    renderTasks();
+    renderCampaigns();
+    renderCalendar();
+  </script>
+</body>
+</html>
